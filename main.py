@@ -1,5 +1,6 @@
 from datetime import datetime, timedelta
 from collections import defaultdict
+import re
 
 class Birthday:
     def __init__(self, date_str):
@@ -50,8 +51,12 @@ class AddressBook:
         contact = self._get_contact(name)
         return contact.phone
 
-    def show_all_contacts(self):
-        return list(self.contacts.keys())
+    def show_all_contacts(self, search_term=None):
+        if search_term:
+            search_results = [contact for contact in self.contacts.keys() if re.search(search_term, contact)]
+            return search_results
+        else:
+            return list(self.contacts.keys())
 
     def add_birthday(self, name, date_str):
         contact = self._get_contact(name)
@@ -218,7 +223,10 @@ def handle_command(command, address_book):
     elif command.startswith("edit-note "):
         return Note.handle_edit_note(address_book, command[10:].split())
     elif command.startswith("delete-note "):
-        return Note.handle_delete_note(address_book, command[12:].split())    
+        return Note.handle_delete_note(address_book, command[12:].split())
+    elif command.startswith("search "):
+        search_term = command[7:]
+        return address_book.show_all_contacts(search_term)    
     else:
         return "Invalid command. Type 'help' for a list of commands."
     
@@ -245,6 +253,7 @@ if __name__ == "__main__":
 # Testing of my bot:
     
 # add Pawel Ciosmak 5059722030 Lubartow aaa@gmail.com 1990-01-01
+# add Artur Laski 0721199939 Katowice kontakt@arturlaski.pl 1983-03-15
 # change Pawel Ciosmak 5059722031 Warszawa bbb@gmail.com 1990-01-02
 # phone Pawel Ciosmak
 # all
@@ -256,4 +265,5 @@ if __name__ == "__main__":
 # add-note <treść notatki>
 # edit-note <indeks notatki> <nowa treść notatki>
 # delete-note <indeks notatki>
-# 
+# search cio
+# search ski (enough one char to search from contact name)
