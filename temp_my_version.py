@@ -41,6 +41,10 @@ class Address(Field):
     def __init__(self, value):
         self.value = value
 
+class Notes(Field):
+    def __init__(self, value):
+        self.value = value
+
 class Birthday(Field):
     def __init__(self, value):
         if len(value) != 10 or not datetime.strptime(value, "%d.%m.%Y"):
@@ -53,7 +57,11 @@ class Record:
         self.phones = []
         self.emails = []
         self.addresses = []
+        self.notes = {} #Create dictionary to make notes and his tags.
         self.birthday = None
+
+    def add_notes(self, note, tags):
+        self.notes[note] = tags
 
     def add_birthday(self, birthday):
         self.birthday = Birthday(birthday)
@@ -87,8 +95,13 @@ class Record:
         phone_info = '; '.join(str(p) for p in self.phones)
         email_info = '; '.join(str(e) for e in self.emails)
         address_info = '; '.join(str(a) for a in self.addresses)
+        #note_info = '; '.join(str(n) for n in self.notes)
         birthday_info = f"Birthday: {self.birthday.value}" if self.birthday else "No birthday set"
-        return f"Contact name: {self.name.value}, phones: {phone_info}, emails: {email_info}, address: {address_info}, {birthday_info}"
+        #return f"Contact name: {self.name.value}, phones: {phone_info}, emails: {email_info}, address: {address_info}, notes: {note_info}, {birthday_info}"
+        note_info = ''.join(f"{note}. TAGI: {', '.join(tags)}\n" for note, tags in self.notes.items())
+        #note_info = '\n'.join(f"NOTE {i+1}: {note}  TAGS: {', '.join(tags)}" for i, note, tags in enumerate(self.notes.items()))
+        return f"--------------------\nContact name: {self.name.value}, phones: {phone_info}, emails: {email_info}, address: {address_info}, {birthday_info}\nNotes:\n{note_info}"
+
 
 class AddressBook(UserDict):
     def add_record(self, record):
@@ -169,6 +182,23 @@ class AddressBook(UserDict):
                 print(f"No birthday set for {name}")
         else:
             print(f"Contact {name} not found.")
+
+    def find_notes_by_tag(self, tag):
+        found_notes = []
+        for record in self.data.values():
+            for note, tags in record.notes.items():
+                if tag in tags:
+                    found_notes.append((record.name.value, note))
+        return found_notes
+
+    def find_contacts_by_tag(self, tag):
+        found_contacts = set()
+        for record in self.data.values():
+            for _, tags in record.notes.items():
+                if tag in tags:
+                    found_contacts.add(record.name.value)
+                    break  # Once a contact with the tag is found, break the loop
+        return list(found_contacts)
             
 def load_address_book_from_file(filename):
     try:
@@ -192,7 +222,7 @@ def parse_input(user_input):
 
 
 def main():
-    Globalfilename = 'Myaddressbook.dat'
+    Globalfilename = 'Myaddressbook3.dat'
     book = load_address_book_from_file(Globalfilename)
     print("Welcome to the assistant bot!")
     
@@ -239,7 +269,7 @@ def main():
                     phone_found = record.find_phone(phone)
                     if phone_found:
                         record.remove_phone(phone)
-                        record.add_phone("0000000000") #not remove only replace to 0000000000
+                        #record.add_phone("0000000000") #not remove only replace to 0000000000
                         print(f"Phone number {phone} removed for contact {name}.")
                     else:
                         print(f"Phone number {phone} not found for contact {name}.")
@@ -364,6 +394,46 @@ def main():
             except IndexError:
                 print("Invalid command format. Use 'delete_contact [name]'")
 
+        elif command == "add_notes":
+            try:
+                name, *args = args
+                note, *tags = ' '.join(args).split(";")  # Split the remaining args into note and tags
+                record = book.find(name)
+                if record:
+                    record.add_notes(note.strip(), [tag.strip() for tag in tags])  # Add note with tags to the record
+                    print(f"Notes added for contact {name}")
+                else:
+                    print(f"Contact {name} not found")
+            except ValueError as e:
+                print(e)
+                print("Invalid command format. Use 'add-notes [name] [note]; [tag1; tag2; ...]'")
+
+        elif command == "find_notes_by_tag":
+            try:
+                tag = args[0]
+                found_notes = book.find_notes_by_tag(tag)
+                if found_notes:
+                    print(f"Notes with tag '{tag}':")
+                    for name, note in found_notes:
+                        print(f"Contact: {name}, Note: {note}")
+                else:
+                    print(f"No notes found with tag '{tag}'")
+            except IndexError:
+                print("Invalid command format. Use 'find_notes_by_tag [tag]'")
+
+        elif command == "find_contacts_by_tag":
+            try:
+                tag = args[0]
+                found_contacts = book.find_contacts_by_tag(tag)
+                if found_contacts:
+                    print(f"Contacts with tag '{tag}':")
+                    for contact in found_contacts:
+                        print(contact)
+                else:
+                    print(f"No contacts found with tag '{tag}'")
+            except IndexError:
+                print("Invalid command format. Use 'find_contacts_by_tag [tag]'")
+
         elif command == "hello":
             print("How can I help you?")
         
@@ -381,27 +451,33 @@ if __name__ == "__main__":
 
 
 
-# Testing of my bot:
-
 '''
-Actual funcion of bot assistant:
-1. add (contact), delete_contact, change_phone, add_phone, remove_phone
-2. birthdays, when_birthday, show_birthday, add_birthday
-3. search (contacts by min. 1 char), all (show all)
-4. hello, close, exit
-
-Still to do:
-1. notes ajust to contact, search notes (by tags)
-2. edit and delete notes
-
-'''
-
+    Tested function by Artur Laski - 20240329 T23:41
+    Test: OK
+'''    
+# add Artur 0721199939 a@a.pl Katowice
+# add Michal 0999888777 michu@gmail.com Sosnowiec
+# add Monika 0505031265 m@m.pl Sosnowiec
 # all
-# phone Artur
-# search rt (enough one char to search from contact name)
-# add_birthday Artur 29.03.1983
-# add Mona 0999888777 c@c.pl Sosnowiec
-# add_birthday Mona 09.08.1985
-# birthdays
+# search M
+# search tur
+# search Mo
+# remove_phone Michal 0999888777
+# add_phone Michal 0777666555
+# change_phone Michal 0777666555 0111222333
+# add_email Michal m2@m.pl
+# add_address Michal Krakow
+# phone Michal
+# add_birthday Michal 31.03.1983
+# show_birthday Michal
+# birthdays          ====>> if someone have a birthday in next week
 # when_birthdays
-# exit (save to file)
+# delete_contact Michal
+# add Michal 0999888777 michu@gmail.com Sosnowiec
+# add_notes Michal To jest pierwsza notatka od szwagra; family, c++, friend
+# add_notes Monika To jest testowa notatka rodzinna; family; wife
+# find_notes_by_tag family
+# find_contacts_by_tag wife
+# hello
+# close
+# exit
