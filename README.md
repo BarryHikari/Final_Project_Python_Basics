@@ -36,4 +36,32 @@ A "personal assistant" should additionally be able to:
 
 For users
 
-Dear user, we are glad that you have chosen our Personal Assistant. The interface is implemented in the form of a command line and relies on text messages and commands that you can enter from the keyboard. The program handles incorrect input correctly without closing, so don't worry if you enter something incorrectly.
+Dear user, we are glad that you have chosen our Personal Assistant. The interface is implemented in the form of a command line and relies on text messages and commands that you can enter from the keyboard. The program handles incorrect input correctly without closing, so don't worry if you enter something incorrectly. To start using the application, type the command in the console. Here is the list of supported commands.
+
+Supported Commands
+
+- `add [name] [phone] [email] [address]`: Add a new contact with specified details.
+- `search [name]`: Search for contacts by name.
+- `remove_phone [name] [phone]`: Remove a phone number from a contact.
+- `change_phone [name] [old phone] [new phone]`: Change a contact's phone number.
+- `add_phone [name] [phone]`: Add a phone number to a contact.
+- `add_email [name] [email]`: Add an email address to a contact.
+- `add_address [name] [address]`: Add a physical address to a contact.
+- `phone [name]`: Display phone numbers for a contact.
+- `all`: Display all contacts in the address book.
+- `add_birthday [name] [birth date]`: Add a birthday to a contact.
+- `show_birthday [name]`: Show the birthday for a contact.
+- `birthdays`: Display upcoming birthdays in the next week.
+- `when_birthdays`: Show how many days until each contact's birthday.
+- `delete_contact [name]`: Delete a contact.
+- `add_notes [name] [note], [tag1, tag2, ...]`: Add notes with tags to a contact.
+- `delete_notes [name] [note], [tag1, tag2, ...]`: Delete a notes.
+- `find_notes_by_tag [tag]`: Find notes associated with a specific tag.
+- `find_contacts_by_tag [tag]`: Find contacts associated with a specific tag.
+- `hello`: Display a greeting message.
+- `close` or `exit`: Save the address book to a file and exit the program.
+
+
+To use the address book assistant, simply run the `main()` function. Follow the prompts to perform various operations on your contacts.
+
+Thank you and we hope you enjoy using our application!
