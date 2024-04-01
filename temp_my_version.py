@@ -125,9 +125,10 @@ class AddressBook(UserDict):
         return self.data.get(name)
 
     def findname(self, name):
+        name_lower = name.lower()  # Przekształć szukane imię do małych liter
         found_contacts = []
         for contact_name, record in self.data.items():
-            if name in contact_name:
+            if name_lower in contact_name.lower():  # Porównaj ignorując wielkość liter
                 found_contacts.append(record)
         return found_contacts if found_contacts else None
 
@@ -198,21 +199,26 @@ class AddressBook(UserDict):
             print(f"Contact {name} not found.")
 
     def find_notes_by_tag(self, tag):
+        tag_lower = tag.lower()  # Przekształć szukany tag do małych liter
         found_notes = []
         for record in self.data.values():
             for note, tags in record.notes.items():
-                if tag in tags:
+                # Przekształć tagi z notatek do małych liter przy porównywaniu
+                if tag_lower in [t.lower() for t in tags]:
                     found_notes.append((record.name.value, note))
         return found_notes
 
     def find_contacts_by_tag(self, tag):
+        tag_lower = tag.lower()  # Przekształć szukany tag do małych liter
         found_contacts = set()
         for record in self.data.values():
             for _, tags in record.notes.items():
-                if tag in tags:
+                # Przekształć tagi z notatek do małych liter przy porównywaniu
+                if tag_lower in [t.lower() for t in tags]:
                     found_contacts.add(record.name.value)
                     break  # Once a contact with the tag is found, break the loop
         return list(found_contacts)
+
 
 def load_address_book_from_file(filename):
     try:
@@ -246,9 +252,9 @@ def main():
     
     ''' 
         Start assistant commands:
-        comand lists: ["add", "remove_phone", "change_phone", "add_phone", "add_email", "add_address", "phone", "all", "add_birthday", "show_birthday", "birthdays", "add_notes", "find_notes_by_tag", "find_contacts_by_tag", "edit_notes", "delete_notes", "hello", "exit", "close"]
+        comand lists: ["add", "remove_phone", "change_phone", "add_phone", "add_email", "add_address", "phone", "all", "add_birthday", "show_birthday", "birthdays", "add_notes", "find_notes_by_tag", "find_contacts_by_tag", "edit_notes", "delete_notes", "hello", "exit", "close", "delete_contact"]
     ''' 
-    available_commands = ["add", "remove_phone", "change_phone", "add_phone", "add_email", "add_address", "phone", "all", "add_birthday", "show_birthday", "birthdays", "when_birthdays", "add_notes", "find_notes_by_tag", "find_contacts_by_tag", "edit_notes", "delete_notes", "hello", "exit", "close"]
+    available_commands = ["add", "remove_phone", "change_phone", "add_phone", "add_email", "add_address", "phone", "all", "add_birthday", "show_birthday", "birthdays", "when_birthdays", "add_notes", "find_notes_by_tag", "find_contacts_by_tag", "edit_notes", "delete_notes", "hello", "exit", "close", "delete_contact"]
 
     while True:
         user_input = input("Enter command: ").strip()
@@ -272,6 +278,13 @@ def main():
                 print(f"Contact {name} added with phone {phone}, email {email}, and address {address}")
             except ValueError:
                 print("Invalid command format. Use 'add [name]; [phone]; [email]; [address]'")
+
+        elif command == "delete_contact":
+            try:
+                name = ' '.join(args).strip()
+                book.remove_contact(name)  # This will invoke the remove_contact method correctly
+            except ValueError:
+                print("Invalid command format. Use 'delete_contact [name]'")
         
         elif command == "search":
             try:
@@ -516,12 +529,6 @@ if __name__ == "__main__":
 #edycji i kasowaniu notatek
 #poprawiony kod o podawanie komend przy użyciu ; aby można było imie i nazwisko podać etc.
 
-'''
-    Tested function by Artur Laski - 20240401 T23:41
-    Test: OK
-    Tested function by Artur Laski - 20240329 T23:41
-    Test: OK
-'''    
 # add Artur Laski; 0721199939 a@a.pl Katowice
 # add Michal Misterkiewicz; 0999888777 michu@gmail.com Sosnowiec
 # add Monika Misterkiewicz; 0505031265 m@m.pl Sosnowiec
